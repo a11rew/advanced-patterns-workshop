@@ -1,6 +1,15 @@
 import { describe, it } from "vitest";
 import { Brand } from "../helpers/Brand";
 
+type AuthorizedConversionAmount = Brand<
+  number,
+  "Amount authorized by API for use in conversion"
+>;
+type AuthorizedConversionUser = Brand<
+  User,
+  "User authorized to perform conversion"
+>;
+
 interface User {
   id: string;
   name: string;
@@ -12,20 +21,27 @@ interface User {
 const getConversionRateFromApi = async (
   amount: number,
   from: string,
-  to: string,
+  to: string
 ) => {
-  return Promise.resolve(amount * 0.82);
+  return Promise.resolve((amount * 0.82) as AuthorizedConversionAmount);
 };
 
 // Mocks a function which actually performs the conversion
-const performConversion = async (user: User, to: string, amount: number) => {};
+const performConversion = async (
+  user: AuthorizedConversionUser,
+  to: string,
+  amount: AuthorizedConversionAmount
+) => {};
 
-const ensureUserCanConvert = (user: User, amount: number): User => {
+const ensureUserCanConvert = (
+  user: User,
+  amount: AuthorizedConversionAmount
+) => {
   if (user.maxConversionAmount < amount) {
     throw new Error("User cannot convert currency");
   }
 
-  return user;
+  return user as AuthorizedConversionUser;
 };
 
 describe("Possible implementations", () => {
@@ -34,7 +50,7 @@ describe("Possible implementations", () => {
       user: User,
       from: string,
       to: string,
-      amount: number,
+      amount: number
     ) => {
       const convertedAmount = await getConversionRateFromApi(amount, from, to);
 
@@ -48,7 +64,7 @@ describe("Possible implementations", () => {
       user: User,
       from: string,
       to: string,
-      amount: number,
+      amount: number
     ) => {
       // @ts-expect-error
       const authorizedUser = ensureUserCanConvert(user, amount);
@@ -63,7 +79,7 @@ describe("Possible implementations", () => {
       user: User,
       from: string,
       to: string,
-      amount: number,
+      amount: number
     ) => {
       const convertedAmount = await getConversionRateFromApi(amount, from, to);
       const authorizedUser = ensureUserCanConvert(user, convertedAmount);

@@ -9,9 +9,9 @@ import { Equal, Expect } from "../helpers/type-utils";
 const app = express();
 
 const makeTypeSafeGet =
-  (
-    parser: (queryParams: Request["query"]) => unknown,
-    handler: RequestHandler
+  <TQueryParams extends Record<string, string>>(
+    parser: (queryParams: Request["query"]) => TQueryParams,
+    handler: RequestHandler<Record<string, string>, any, any, TQueryParams>
   ) =>
   (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -21,7 +21,7 @@ const makeTypeSafeGet =
       return;
     }
 
-    return handler(req, res, next);
+    return handler(req as any, res, next);
   };
 
 const getUser = makeTypeSafeGet(

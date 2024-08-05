@@ -21,7 +21,11 @@ class DynamicMiddleware<TInput, TOutput> {
   }
 
   // Clue: you'll need to make changes here!
-  use(middleware: Middleware<TInput, TOutput>): unknown {
+  // Returns DynamicMiddleware
+  // Should accept a function that receives that last middleware's output || tinput
+  use<TMiddlewareOutput>(
+    middleware: Middleware<TOutput, TMiddlewareOutput>
+  ): DynamicMiddleware<TInput, TMiddlewareOutput> {
     this.middleware.push(middleware);
 
     return this as any;
